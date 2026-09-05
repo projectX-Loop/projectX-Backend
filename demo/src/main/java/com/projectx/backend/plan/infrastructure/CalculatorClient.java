@@ -1,5 +1,6 @@
 package com.projectx.backend.plan.infrastructure;
 
+import java.net.http.HttpClient;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,10 @@ public class CalculatorClient {
 	private final RestClient restClient;
 
 	public CalculatorClient(AiServiceProperties properties) {
-		JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
+		HttpClient httpClient = HttpClient.newBuilder()
+				.connectTimeout(properties.calculateTimeout())
+				.build();
+		JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
 		requestFactory.setReadTimeout(properties.calculateTimeout());
 		this.restClient = RestClient.builder().baseUrl(properties.baseUrl())
 				.requestFactory(requestFactory)

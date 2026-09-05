@@ -44,4 +44,17 @@ class PlanCreateServiceTests {
 						.isEqualTo(ErrorCode.PORTFOLIO_REQUIRED));
 	}
 
+	@Test
+	void rejectsPortfolioWhenLargeFundsWouldOverflowInvestmentCalculation() {
+		PlanCreateService service = new PlanCreateService(null, null, null, null, null, null);
+		PlanCreateCommand command = new PlanCreateCommand(new Goal(50_000_000L, 60), new Funds(Long.MAX_VALUE, 0L),
+				new Allocation(new AllocationItem(2, 98, 0), new AllocationItem(0, 100, 0)),
+				new Portfolio(List.of()), new Rebalancing("M"));
+
+		assertThatThrownBy(() -> service.create(command))
+				.isInstanceOf(BusinessException.class)
+				.satisfies(exception -> assertThat(((BusinessException) exception).getErrorCode())
+						.isEqualTo(ErrorCode.PORTFOLIO_REQUIRED));
+	}
+
 }
