@@ -177,8 +177,8 @@ public class PlanCreateService {
 	}
 
 	private boolean hasInvestmentFunds(PlanCreateCommand command) {
-		return command.funds().initial() * command.alloc().initial().invest() > 0
-				|| command.funds().monthly() * command.alloc().monthly().invest() > 0;
+		return command.funds().initial() > 0 && command.alloc().initial().invest() > 0
+				|| command.funds().monthly() > 0 && command.alloc().monthly().invest() > 0;
 	}
 
 	private FocusPeriod toFocusPeriod(String focus) {
