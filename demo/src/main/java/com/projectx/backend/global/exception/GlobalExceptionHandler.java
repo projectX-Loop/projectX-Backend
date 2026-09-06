@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(BusinessException.class)
 	public ResponseEntity<ApiError> handleBusinessException(BusinessException exception) {
-		return response(exception.getErrorCode(), exception.getErrors());
+		return response(exception.getErrorCode(), exception.getErrors(), exception.getPublicId());
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -66,12 +66,23 @@ public class GlobalExceptionHandler {
 	}
 
 	private ResponseEntity<ApiError> response(ErrorCode errorCode, List<ValidationError> errors) {
-		ApiError body = new ApiError(errorCode.getCode(), errorCode.getMessage(), errorCode.isRetryable(), errors);
+		return response(errorCode, errors, null);
+	}
+
+	private ResponseEntity<ApiError> response(ErrorCode errorCode, List<ValidationError> errors, java.util.UUID publicId) {
+		List<ValidationError> details = errors.stream()
+				.map(error -> error.code() == null
+						? new ValidationError(errorCode.getCode(), error.field(), error.message())
+						: error)
+				.toList();
+		String field = details.size() == 1 ? details.get(0).field() : null;
+		ApiError body = new ApiError(errorCode.getCode(), errorCode.getMessage(), errorCode.isRetryable(), field, details,
+				publicId == null ? null : publicId.toString(), null);
 		return ResponseEntity.status(errorCode.getStatus()).body(body);
 	}
 
 	private ValidationError toValidationError(FieldError error) {
-		return new ValidationError(error.getField(), error.getDefaultMessage());
+		return new ValidationError(ErrorCode.INVALID_REQUEST.getCode(), error.getField(), error.getDefaultMessage());
 	}
 
 }
