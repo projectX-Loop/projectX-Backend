@@ -9,6 +9,20 @@
 - **Database**: PostgreSQL 16
 - **External Communication**: RestClient (FastAPI `ai-service` 연동)
 
+## 로컬 PostgreSQL
+
+`.env.example`을 복사해 `.env`를 만들고 모든 `POSTGRES_*` 값을 입력한 뒤 아래 명령으로 로컬 DB를 시작한다.
+
+```bash
+docker compose up -d postgres
+cd demo && ./gradlew bootRun --args='--spring.profiles.active=local'
+```
+
+`compose.yaml`은 `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_PORT`를 사용하고,
+`local` 프로필은 `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`를 사용한다.
+두 설정의 DB명·사용자·비밀번호는 같아야 하며, 누락된 값이 있으면 시작하지 않는다. 기존 PostgreSQL 컨테이너 또는 볼륨의 인증 정보는 Compose 설정 변경만으로
+바뀌지 않으므로, 기존 로컬 데이터를 보존해야 하면 백업 후 별도로 교체한다.
+
 ## 2. 공개 API 계약
 
 프론트엔드 공개 API의 기본 경로는 `/api/v1`, 콘텐츠 타입은 `application/json`이다. 이 문서는 프론트 커밋 [`2bdd7b4`](https://github.com/projectX-Loop/frontend/tree/2bdd7b463a644e2a78614d9e5cdad3c285ccc61f/docs/api-contract.md)의 계약을 기준으로 한다. `public_id`는 `POST /plans`가 반환하는 UUID이며, 이후 조회·AI 설명 요청에 사용한다. RAG 호출과 대화 저장 설계는 [Plan RAG 설계](docs/plan-rag-design.md)에 정리한다.
