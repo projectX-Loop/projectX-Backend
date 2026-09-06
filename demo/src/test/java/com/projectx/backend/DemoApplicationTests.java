@@ -22,7 +22,7 @@ class DemoApplicationTests {
 
 	@Container
 	@ServiceConnection
-	static PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("postgres:16-alpine");
+	static PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("pgvector/pgvector:pg16-bookworm");
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -32,6 +32,17 @@ class DemoApplicationTests {
 
 	@Test
 	void contextLoads() {
+	}
+
+	@Test
+	void enablesPgvectorExtension() {
+		assertThat(jdbcTemplate.queryForObject("""
+				SELECT EXISTS (
+					SELECT 1
+					FROM pg_extension
+					WHERE extname = 'vector'
+				)
+				""", Boolean.class)).isTrue();
 	}
 
 	@Test
