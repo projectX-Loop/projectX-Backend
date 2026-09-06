@@ -1,11 +1,10 @@
 package com.projectx.backend.plan.infrastructure;
 
-import java.net.http.HttpClient;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
@@ -25,12 +24,11 @@ public class CalculatorClient {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	public CalculatorClient(AiServiceProperties properties) {
-		HttpClient httpClient = HttpClient.newBuilder()
-				.connectTimeout(properties.calculateTimeout())
-				.build();
-		JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
+		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+		requestFactory.setConnectTimeout(properties.calculateTimeout());
 		requestFactory.setReadTimeout(properties.calculateTimeout());
-		this.restClient = RestClient.builder().baseUrl(properties.baseUrl())
+		this.restClient = RestClient.builder()
+				.baseUrl(properties.baseUrl())
 				.requestFactory(requestFactory)
 				.build();
 	}
