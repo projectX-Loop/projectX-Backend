@@ -21,9 +21,9 @@ import com.projectx.backend.plan.api.PlanCreateCommand;
 public class CalculatorClient {
 
 	private final RestClient restClient;
-	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final ObjectMapper objectMapper;
 
-	public CalculatorClient(AiServiceProperties properties) {
+	public CalculatorClient(AiServiceProperties properties, ObjectMapper objectMapper) {
 		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 		requestFactory.setConnectTimeout(properties.calculateTimeout());
 		requestFactory.setReadTimeout(properties.calculateTimeout());
@@ -31,6 +31,7 @@ public class CalculatorClient {
 				.baseUrl(properties.baseUrl())
 				.requestFactory(requestFactory)
 				.build();
+		this.objectMapper = objectMapper;
 	}
 
 	public JsonNode calculate(PlanCreateCommand command) {

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -106,7 +107,7 @@ class CalculatorClientTests {
 
 	private CalculatorClient client() {
 		return new CalculatorClient(new AiServiceProperties("http://localhost:" + server.getAddress().getPort(),
-				Duration.ofSeconds(1)));
+				Duration.ofSeconds(1)), objectMapper);
 	}
 
 	private PlanCreateCommand command() {
@@ -118,11 +119,11 @@ class CalculatorClientTests {
 	private void capture(HttpExchange exchange) throws IOException {
 		requestMethod.set(exchange.getRequestMethod());
 		requestPath.set(exchange.getRequestURI().getPath());
-		requestBody.set(new String(exchange.getRequestBody().readAllBytes()));
+		requestBody.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
 	}
 
 	private void respond(HttpExchange exchange, int status, String body) throws IOException {
-		byte[] response = body.getBytes();
+		byte[] response = body.getBytes(StandardCharsets.UTF_8);
 		exchange.getResponseHeaders().set("Content-Type", "application/json");
 		exchange.sendResponseHeaders(status, response.length);
 		exchange.getResponseBody().write(response);
