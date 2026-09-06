@@ -1,5 +1,7 @@
 spring:
+  config:
+    import: optional:file:../.env[.properties]
   datasource:
-    url: jdbc:postgresql://localhost:5432/projectx
-    username: ${DB_USERNAME:projectx}
-    password: ${DB_PASSWORD:projectx}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/projectx_local}
+    username: ${SPRING_DATASOURCE_USERNAME:projectx}
+    password: ${SPRING_DATASOURCE_PASSWORD:projectx}
