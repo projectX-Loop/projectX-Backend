@@ -49,8 +49,7 @@ public class PlanCreateService {
 	public PlanCreateResponse create(PlanCreateCommand command) {
 		validate(command);
 		DataSnapshot dataSnapshot = dataSnapshotRepository.findByIsCurrentTrue()
-				.orElseThrow(() -> new BusinessException(ErrorCode.DATA_SNAPSHOT_UNAVAILABLE,
-						"Current data snapshot is unavailable"));
+				.orElseThrow(() -> new BusinessException(ErrorCode.DATA_SNAPSHOT_UNAVAILABLE));
 
 		Map<String, InvAsset> allowedAssets = loadAllowedAssets(dataSnapshot);
 		validatePortfolioAssets(command, allowedAssets);
@@ -194,17 +193,15 @@ public class PlanCreateService {
 	private void verifyDataHash(JsonNode calculation, String dataHash) {
 		String responseDataHash = calculation.path("meta").path("data_hash").asText();
 		if (responseDataHash.isBlank()) {
-			throw new BusinessException(ErrorCode.CALCULATOR_RESPONSE_INVALID,
-					"Calculator response does not contain meta.data_hash");
+			throw new BusinessException(ErrorCode.CALCULATOR_RESPONSE_INVALID);
 		}
 		if (!dataHash.equals(responseDataHash)) {
-			throw new BusinessException(ErrorCode.CALCULATOR_DATA_MISMATCH,
-					"Calculator response data hash does not match the plan snapshot");
+			throw new BusinessException(ErrorCode.CALCULATOR_DATA_MISMATCH);
 		}
 	}
 
 	private BusinessException validationException(ErrorCode errorCode, String message, String field) {
-		return new BusinessException(errorCode, message, List.of(new ValidationError(field, message)));
+		return new BusinessException(errorCode, List.of(new ValidationError(field, message)));
 	}
 
 }
