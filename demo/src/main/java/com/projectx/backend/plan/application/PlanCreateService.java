@@ -17,7 +17,7 @@ import com.projectx.backend.global.exception.BusinessException;
 import com.projectx.backend.global.exception.ErrorCode;
 import com.projectx.backend.plan.api.PlanCreateCommand;
 import com.projectx.backend.plan.api.PlanCreateRequest.AssetWeight;
-import com.projectx.backend.plan.api.PlanCreateResponse;
+import com.projectx.backend.plan.api.PlanResponse;
 import com.projectx.backend.plan.domain.entity.FocusPeriod;
 import com.projectx.backend.plan.domain.entity.InvHolding;
 import com.projectx.backend.plan.domain.entity.Plan;
@@ -46,7 +46,7 @@ public class PlanCreateService {
 	private final CalculatorClient calculatorClient;
 
 	@Transactional
-	public PlanCreateResponse create(PlanCreateCommand command) {
+	public PlanResponse create(PlanCreateCommand command) {
 		validate(command);
 		DataSnapshot dataSnapshot = dataSnapshotRepository.findByIsCurrentTrue()
 				.orElseThrow(() -> new BusinessException(ErrorCode.DATA_SNAPSHOT_UNAVAILABLE));
@@ -71,7 +71,7 @@ public class PlanCreateService {
 
 		JsonNode calculation = calculatorClient.calculate(command);
 		verifyDataHash(calculation, dataSnapshot.getDataHash());
-		return new PlanCreateResponse(savedPlan.getPublicId(), calculation);
+		return PlanResponse.from(savedPlan, command, calculation);
 	}
 
 	private void validate(PlanCreateCommand command) {

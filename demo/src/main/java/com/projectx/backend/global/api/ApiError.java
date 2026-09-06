@@ -2,6 +2,9 @@ package com.projectx.backend.global.api;
 
 import java.util.List;
 
-public record ApiError(String code, String message, boolean retryable, List<ValidationError> errors) {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record ApiError(String code, String message, boolean retryable, String field, List<ValidationError> errors,
+		@JsonProperty("public_id") String publicId, @JsonProperty("max_months") Integer maxMonths) {
 
 }
