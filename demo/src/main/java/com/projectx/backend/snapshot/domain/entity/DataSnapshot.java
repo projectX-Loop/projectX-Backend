@@ -1,5 +1,6 @@
 package com.projectx.backend.snapshot.domain.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
@@ -37,6 +38,9 @@ public class DataSnapshot {
 	@Column(name = "latest_month", nullable = false)
 	private LocalDate latestMonth;
 
+	@Column(name = "safe_rate_annual_pct", nullable = false)
+	private BigDecimal safeRateAnnualPct;
+
 	@Column(name = "frozen", nullable = false)
 	private boolean frozen;
 
@@ -48,12 +52,13 @@ public class DataSnapshot {
 	private OffsetDateTime createdAt;
 
 	public static DataSnapshot create(String dataVersion, String dataHash, LocalDate startMonth,
-			LocalDate latestMonth) {
+			LocalDate latestMonth, BigDecimal safeRateAnnualPct) {
 		DataSnapshot dataSnapshot = new DataSnapshot();
 		dataSnapshot.dataVersion = dataVersion;
 		dataSnapshot.dataHash = dataHash;
 		dataSnapshot.startMonth = startMonth;
 		dataSnapshot.latestMonth = latestMonth;
+		dataSnapshot.safeRateAnnualPct = safeRateAnnualPct;
 		dataSnapshot.frozen = false;
 		dataSnapshot.isCurrent = false;
 		return dataSnapshot;
