@@ -27,7 +27,8 @@ cd demo && ./gradlew bootRun --args='--spring.profiles.active=local'
 
 계획 생성과 조회는 `POST /calculate`을 호출한다. AI 서비스 주소는 `AI_SERVICE_BASE_URL`로 설정하며, 로컬 기본값은
 `http://localhost:8000`이다. 백엔드는 `PlanInputs`만 전달하고 계산 데이터를 직접 전송하지 않는다. AI 서비스는 MVP 스냅샷과
-동일한 데이터 기준으로 계산하고, 응답의 `calculation.meta.data_hash`에 `sha256:mvp-2021-08-2026-07-v1`을 반환해야 한다.
+동일한 데이터 기준으로 계산하고, 응답의 `calculation.meta.data_hash`에
+`sha256:fa84100c67a0589aaa3cdb88a13138b87dba6417403f56608680896dbfddb90d`을 반환해야 한다.
 해시가 누락되거나 현재 계획의 스냅샷과 다르면 백엔드는 계산 실패로 처리한다.
 
 ## 2. 공개 API 계약
