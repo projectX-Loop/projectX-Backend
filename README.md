@@ -13,7 +13,8 @@
 
 프론트엔드 공개 API의 기본 경로는 `/api/v1`, 콘텐츠 타입은 `application/json`이다. 이 문서는 프론트 커밋 [`2bdd7b4`](https://github.com/projectX-Loop/frontend/tree/2bdd7b463a644e2a78614d9e5cdad3c285ccc61f/docs/api-contract.md)의 계약을 기준으로 한다. `public_id`는 `POST /plans`가 반환하는 UUID이며, 이후 조회·AI 설명 요청에 사용한다. RAG 호출과 대화 저장 설계는 [Plan RAG 설계](docs/plan-rag-design.md)에 정리한다.
 
-현재 구현 상태는 계약과 별개다. `POST /plans`만 구현되어 있으며, 응답 구조와 오류 필드는 아래 계약에 맞추는 작업이 남아 있다. 나머지 네 API는 아직 구현되지 않았다.
+현재 구현 상태는 계약과 별개다. `GET /universe`, `GET /samples`, `POST /plans`,
+`GET /plans/{public_id}`는 구현되어 있다. `POST /plans/{public_id}/explanation`은 RAG 담당 작업으로 별도 진행한다.
 
 ### 공통 요청: `PlanInputs`
 
@@ -38,10 +39,14 @@
 | --- | --- | --- |
 | `snapshot.data_version`, `snapshot.data_hash` | string | 데이터 버전과 해시 |
 | `snapshot.window` | `{ start: string, end: string, months: number }` | 데이터 기간 |
-| `snapshot.safe_rate_annual_pct` | number | 안전 버킷 연 금리(%) |
 | `assets[]` | `UniverseAsset[]` | 선택 가능한 자산 |
 | `assets[].code` | string | `PlanInputs.portfolio.assets[].code` 값 |
-| `assets[].display_name`, `.instrument`, `.group`, `.tax_class` | string | 표시명, 종목코드, `base` 또는 `optional`, 세금 분류 |
+| `assets[].display_name`, `.instrument`, `.tax_class` | string | 표시명, 종목코드, 세금 분류 |
+
+UX/UI는 `GET /api/v1/universe`가 반환한 `assets[]`로 자산 선택 목록을 구성한다. 화면에는
+`display_name`과 `instrument`를 표시하고, 사용자가 고른 `code`와 입력한 `weight`만
+`POST /api/v1/plans`의 `portfolio.assets[]`로 전송한다. 안전 금리는 카탈로그가 아니라
+계산 결과의 `calculation.meta.safe_rate_annual_pct`에서 표시한다.
 
 ### `GET /samples`
 

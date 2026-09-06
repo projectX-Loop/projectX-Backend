@@ -24,6 +24,8 @@ public enum ErrorCode {
 	ASSET_NOT_IN_CATALOG(HttpStatus.BAD_REQUEST, "PLAN-400-12", "Portfolio asset is not in the current catalog", false),
 	FOCUS_INVALID(HttpStatus.BAD_REQUEST, "PLAN-400-13", "Rebalancing focus is invalid", false),
 	DATA_SNAPSHOT_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "PLAN-503-1", "Current data snapshot is unavailable", true),
+	PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "PLAN_NOT_FOUND", "Plan not found", false),
+	CALCULATION_FAILED(HttpStatus.BAD_GATEWAY, "CALCULATION_FAILED", "Calculation failed", true),
 	CALCULATOR_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "PLAN-502-1", "Calculator is unavailable", true),
 	CALCULATOR_DATA_MISMATCH(HttpStatus.BAD_GATEWAY, "PLAN-502-2", "Calculator data does not match the plan snapshot", true),
 	CALCULATOR_RESPONSE_INVALID(HttpStatus.BAD_GATEWAY, "PLAN-502-3", "Calculator response is invalid", true);
