@@ -23,6 +23,13 @@ cd demo && ./gradlew bootRun --args='--spring.profiles.active=local'
 두 설정의 DB명·사용자·비밀번호는 같아야 하며, 누락된 값이 있으면 시작하지 않는다. 기존 PostgreSQL 컨테이너 또는 볼륨의 인증 정보는 Compose 설정 변경만으로
 바뀌지 않으므로, 기존 로컬 데이터를 보존해야 하면 백업 후 별도로 교체한다.
 
+## AI 계산 서비스
+
+계획 생성과 조회는 `POST /calculate`을 호출한다. AI 서비스 주소는 `AI_SERVICE_BASE_URL`로 설정하며, 로컬 기본값은
+`http://localhost:8000`이다. 백엔드는 `PlanInputs`만 전달하고 계산 데이터를 직접 전송하지 않는다. AI 서비스는 MVP 스냅샷과
+동일한 데이터 기준으로 계산하고, 응답의 `calculation.meta.data_hash`에 `sha256:mvp-2021-08-2026-07-v1`을 반환해야 한다.
+해시가 누락되거나 현재 계획의 스냅샷과 다르면 백엔드는 계산 실패로 처리한다.
+
 ## 2. 공개 API 계약
 
 프론트엔드 공개 API의 기본 경로는 `/api/v1`, 콘텐츠 타입은 `application/json`이다. 이 문서는 프론트 커밋 [`2bdd7b4`](https://github.com/projectX-Loop/frontend/tree/2bdd7b463a644e2a78614d9e5cdad3c285ccc61f/docs/api-contract.md)의 계약을 기준으로 한다. `public_id`는 `POST /plans`가 반환하는 UUID이며, 이후 조회·AI 설명 요청에 사용한다. RAG 호출과 대화 저장 설계는 [Plan RAG 설계](docs/plan-rag-design.md)에 정리한다.
