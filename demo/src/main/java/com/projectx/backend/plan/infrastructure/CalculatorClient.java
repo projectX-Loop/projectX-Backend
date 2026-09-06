@@ -41,20 +41,19 @@ public class CalculatorClient {
 					.retrieve()
 					.body(JsonNode.class);
 			if (response == null) {
-				throw new BusinessException(ErrorCode.CALCULATOR_RESPONSE_INVALID,
-						"Calculator response is empty");
+				throw new BusinessException(ErrorCode.CALCULATOR_RESPONSE_INVALID);
 			}
 			return response;
 		} catch (BusinessException exception) {
 			throw exception;
 		} catch (RestClientResponseException exception) {
 			if (exception.getStatusCode().value() == HttpStatus.UNPROCESSABLE_ENTITY.value()) {
-				throw new BusinessException(ErrorCode.INVALID_REQUEST, "Calculator rejected the request",
+				throw new BusinessException(ErrorCode.INVALID_REQUEST,
 						List.of(new ValidationError("calculator", exception.getResponseBodyAsString())));
 			}
-			throw new BusinessException(ErrorCode.CALCULATOR_UNAVAILABLE, "Calculator request failed");
+			throw new BusinessException(ErrorCode.CALCULATOR_UNAVAILABLE);
 		} catch (RuntimeException exception) {
-			throw new BusinessException(ErrorCode.CALCULATOR_UNAVAILABLE, "Calculator is unavailable");
+			throw new BusinessException(ErrorCode.CALCULATOR_UNAVAILABLE);
 		}
 	}
 
