@@ -22,7 +22,7 @@ class DemoApplicationTests {
 
 	@Container
 	@ServiceConnection
-	static PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("postgres:16-alpine");
+	static PostgreSQLContainer<?> postgresql = new PostgreSQLContainer<>("pgvector/pgvector:pg16-bookworm");
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;

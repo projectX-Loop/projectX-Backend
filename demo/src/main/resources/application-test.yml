@@ -3,3 +3,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/projectx_test
     username: ${DB_USERNAME:projectx}
     password: ${DB_PASSWORD:projectx}
+  flyway:
+    placeholders:
+      rag_embedding_dimensions: 768

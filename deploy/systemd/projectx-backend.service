@@ -1,0 +1,23 @@
+[Unit]
+Description=ProjectX Spring Boot API
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=projectx
+Group=projectx
+WorkingDirectory=/opt/projectx
+EnvironmentFile=/etc/projectx/backend.env
+Environment=PROJECTX_ENV_FILE=/etc/projectx/backend.env
+ExecStartPre=/usr/bin/docker compose --env-file /etc/projectx/backend.env -f /opt/projectx/docker-compose.yml up -d postgres
+ExecStart=/usr/bin/java -jar /opt/projectx/projectx-backend.jar
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

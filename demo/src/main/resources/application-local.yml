@@ -5,3 +5,6 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/projectx_local}
     username: ${SPRING_DATASOURCE_USERNAME:projectx}
     password: ${SPRING_DATASOURCE_PASSWORD:projectx}
+  flyway:
+    placeholders:
+      rag_embedding_dimensions: ${RAG_EMBEDDING_DIMENSIONS:768}
