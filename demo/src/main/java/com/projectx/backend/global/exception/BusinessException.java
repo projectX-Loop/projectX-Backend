@@ -9,12 +9,12 @@ public class BusinessException extends RuntimeException {
 	private final ErrorCode errorCode;
 	private final List<ValidationError> errors;
 
-	public BusinessException(ErrorCode errorCode, String message) {
-		this(errorCode, message, List.of());
+	public BusinessException(ErrorCode errorCode) {
+		this(errorCode, List.of());
 	}
 
-	public BusinessException(ErrorCode errorCode, String message, List<ValidationError> errors) {
-		super(message);
+	public BusinessException(ErrorCode errorCode, List<ValidationError> errors) {
+		super(errorCode.getMessage());
 		this.errorCode = errorCode;
 		this.errors = errors;
 	}
