@@ -16,6 +16,8 @@ import com.projectx.backend.explanation.domain.entity.PlanExplanation;
 import com.projectx.backend.explanation.domain.repository.PlanExplanationRepository;
 import com.projectx.backend.global.exception.BusinessException;
 import com.projectx.backend.global.exception.ErrorCode;
+import com.projectx.backend.plan.api.PlanResponse;
+import com.projectx.backend.plan.application.PlanQueryService;
 import com.projectx.backend.plan.domain.entity.Plan;
 import com.projectx.backend.plan.domain.repository.PlanRepository;
 
@@ -50,7 +52,7 @@ public class ExplanationService {
 
 	private final PlanRepository planRepository;
 	private final PlanExplanationRepository planExplanationRepository;
-	private final CalculationRequestFactory calculationRequestFactory;
+	private final PlanQueryService planQueryService;
 	private final AiServiceClient aiServiceClient;
 	private final ObjectMapper objectMapper;
 
@@ -115,7 +117,8 @@ public class ExplanationService {
 
 	/** 계산 결과(§5) + focus + goal_amount — /rag/answer, /rag/ask 공통 본문(KAN-17). */
 	private ObjectNode buildRagPayload(Plan plan) {
-		JsonNode calculation = aiServiceClient.calculate(calculationRequestFactory.build(plan));
+		PlanResponse planResponse = planQueryService.get(plan.getPublicId());
+		JsonNode calculation = objectMapper.readTree(planResponse.calculation());
 		ObjectNode payload = (ObjectNode) calculation.deepCopy();
 		payload.put("focus", FocusPeriodCodes.toCode(plan.getFocusPeriod()));
 		payload.put("goal_amount", plan.getGoalAmount());

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,6 +32,8 @@ import com.projectx.backend.explanation.domain.entity.PlanExplanation;
 import com.projectx.backend.explanation.domain.repository.PlanExplanationRepository;
 import com.projectx.backend.global.exception.BusinessException;
 import com.projectx.backend.global.exception.ErrorCode;
+import com.projectx.backend.plan.api.PlanResponse;
+import com.projectx.backend.plan.application.PlanQueryService;
 import com.projectx.backend.plan.domain.entity.FocusPeriod;
 import com.projectx.backend.plan.domain.entity.Plan;
 import com.projectx.backend.plan.domain.repository.PlanRepository;
@@ -49,7 +52,10 @@ class ExplanationServiceTest {
 	private PlanExplanationRepository planExplanationRepository;
 
 	@Mock
-	private CalculationRequestFactory calculationRequestFactory;
+	private PlanQueryService planQueryService;
+
+	@Mock
+	private PlanResponse planResponse;
 
 	@Mock
 	private AiServiceClient aiServiceClient;
@@ -61,24 +67,19 @@ class ExplanationServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		service = new ExplanationService(planRepository, planExplanationRepository, calculationRequestFactory,
+		service = new ExplanationService(planRepository, planExplanationRepository, planQueryService,
 				aiServiceClient, objectMapper);
 
 		plan = Plan.create(1L, 50_000_000L, (short) 60, 10_000_000L, 600_000L, (short) 70, (short) 30, (short) 0,
 				(short) 50, (short) 40, (short) 10, FocusPeriod.QUARTERLY);
 		ReflectionTestUtils.setField(plan, "id", 42L);
+		lenient().when(planQueryService.get(plan.getPublicId())).thenReturn(planResponse);
+		lenient().when(planResponse.calculation()).thenReturn("{\"status\":\"OK\"}");
 	}
 
 	@Test
 	void explainReturnsOkAndPersistsExplanationRow() {
 		when(planRepository.findByPublicId(plan.getPublicId())).thenReturn(Optional.of(plan));
-
-		ObjectNode calcRequest = objectMapper.createObjectNode();
-		when(calculationRequestFactory.build(plan)).thenReturn(calcRequest);
-
-		ObjectNode calculation = objectMapper.createObjectNode();
-		calculation.put("status", "OK");
-		when(aiServiceClient.calculate(calcRequest)).thenReturn(calculation);
 
 		ObjectNode ragResult = objectMapper.createObjectNode();
 		ragResult.put("status", "OK");
@@ -106,9 +107,6 @@ class ExplanationServiceTest {
 	@Test
 	void explainPersistsMessageOnlyWhenRejected() {
 		when(planRepository.findByPublicId(plan.getPublicId())).thenReturn(Optional.of(plan));
-		when(calculationRequestFactory.build(plan)).thenReturn(objectMapper.createObjectNode());
-		when(aiServiceClient.calculate(any())).thenReturn(objectMapper.createObjectNode());
-
 		ObjectNode ragResult = objectMapper.createObjectNode();
 		ragResult.put("status", "EXPLANATION_REJECTED");
 		ragResult.putNull("explanation");
@@ -126,8 +124,6 @@ class ExplanationServiceTest {
 	@Test
 	void askIgnoresClientHistoryAndUsesStoredHistoryAndPersistsQuestionRow() {
 		when(planRepository.findByPublicId(plan.getPublicId())).thenReturn(Optional.of(plan));
-		when(calculationRequestFactory.build(plan)).thenReturn(objectMapper.createObjectNode());
-		when(aiServiceClient.calculate(any())).thenReturn(objectMapper.createObjectNode());
 		when(planExplanationRepository.findByPlanIdAndKindAndStatusOrderByCreatedAtAsc(42L, ExplanationKind.QUESTION,
 				"OK")).thenReturn(List.of());
 
@@ -154,9 +150,6 @@ class ExplanationServiceTest {
 	@Test
 	void askLoadsStoredHistoryAndCapsAtMostRecentFiveTurns() {
 		when(planRepository.findByPublicId(plan.getPublicId())).thenReturn(Optional.of(plan));
-		when(calculationRequestFactory.build(plan)).thenReturn(objectMapper.createObjectNode());
-		when(aiServiceClient.calculate(any())).thenReturn(objectMapper.createObjectNode());
-
 		// plan_explanation에 성공한 질문 8개가 쌓여 있다고 가정(오래된 순) — 마지막 5개(question_3~7)만 넘어가야 한다.
 		List<PlanExplanation> stored = new ArrayList<>();
 		for (int i = 0; i < 8; i++) {
@@ -186,9 +179,6 @@ class ExplanationServiceTest {
 		// KAN-23 취지(감사 로그)대로 plan_explanation은 지우지 않는다 — history 5턴 캡은 AI 호출 쪽에만 적용
 		// (9/6 정정: 한때 저장 쪽에도 5행 캡을 걸었다가 감사 목적과 안 맞아 철회함).
 		when(planRepository.findByPublicId(plan.getPublicId())).thenReturn(Optional.of(plan));
-		when(calculationRequestFactory.build(plan)).thenReturn(objectMapper.createObjectNode());
-		when(aiServiceClient.calculate(any())).thenReturn(objectMapper.createObjectNode());
-
 		ObjectNode ragResult = objectMapper.createObjectNode();
 		ragResult.put("status", "OK");
 		ragResult.putObject("explanation").put("summary", "요약");
