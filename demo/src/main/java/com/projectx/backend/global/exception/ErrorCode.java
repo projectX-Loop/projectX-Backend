@@ -28,7 +28,15 @@ public enum ErrorCode {
 	CALCULATION_FAILED(HttpStatus.BAD_GATEWAY, "CALCULATION_FAILED", "Calculation failed", true),
 	CALCULATOR_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "PLAN-502-1", "Calculator is unavailable", true),
 	CALCULATOR_DATA_MISMATCH(HttpStatus.BAD_GATEWAY, "PLAN-502-2", "Calculator data does not match the plan snapshot", true),
-	CALCULATOR_RESPONSE_INVALID(HttpStatus.BAD_GATEWAY, "PLAN-502-3", "Calculator response is invalid", true);
+	CALCULATOR_RESPONSE_INVALID(HttpStatus.BAD_GATEWAY, "PLAN-502-3", "Calculator response is invalid", true),
+
+	// 아래 4개는 explanation 패키지(성종현, KAN-23·24) 전용 — plan 쪽과 개념이 안 겹쳐서 그대로 둔다.
+	// PLAN_NOT_FOUND·CALCULATION_FAILED는 위 도윤 정의(plan 패키지, PR #8)를 그대로 재사용한다(9/6, 도윤 기준으로 통일 —
+	// 원래 이 자리에 있던 EXPLANATION-404-1/502-1 한글 메시지 버전은 삭제. 아래 「알려진 문제」 참고).
+	VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "EXPLANATION-400-1", "요청 값이 올바르지 않습니다.", false),
+	ENGINE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "EXPLANATION-503-1", "계산 엔진을 사용할 수 없습니다.", true),
+	EXPLANATION_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "EXPLANATION-502-2", "AI 설명을 잠시 사용할 수 없습니다.", true),
+	ANSWER_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "EXPLANATION-502-3", "지금은 답변할 수 없습니다.", true);
 
 	private final HttpStatus status;
 	private final String code;
