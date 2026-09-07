@@ -79,6 +79,18 @@ class AiServiceClientTest {
 	}
 
 	@Test
+	void explainMapsNonOkResponseToUnavailable() {
+		server.expect(requestTo("http://ai-service.test/rag/answer"))
+				.andRespond(withStatus(HttpStatus.UNPROCESSABLE_CONTENT).contentType(MediaType.APPLICATION_JSON)
+						.body("{\"code\":\"INVALID_INPUT\"}"));
+
+		assertThatThrownBy(() -> client.explain(objectMapper.createObjectNode()))
+				.isInstanceOf(BusinessException.class)
+				.satisfies(e -> assertThat(((BusinessException) e).getErrorCode())
+						.isEqualTo(ErrorCode.EXPLANATION_UNAVAILABLE));
+	}
+
+	@Test
 	void explainThrowsUnavailableWhenAiServiceUnreachable() {
 		AiServiceClient unreachable = new AiServiceClient(RestClient.builder().baseUrl("http://localhost:1").build());
 
