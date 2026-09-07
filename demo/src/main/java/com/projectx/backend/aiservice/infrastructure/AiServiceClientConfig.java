@@ -1,10 +1,8 @@
 package com.projectx.backend.aiservice.infrastructure;
 
-import java.net.http.HttpClient;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 /**
@@ -18,19 +16,17 @@ import org.springframework.web.client.RestClient;
  * 이유로 같은 방식을 쓴다.
  *
  * <p>{@code RestClient}도 기본값은 타임아웃이 없다(요청이 끝날 때까지 무한정 기다림) — ai-service가
- * 멈추면 이 호출을 문 스레드가 영원히 붙잡힌다. {@code JdkClientHttpRequestFactory}로 연결·읽기 타임아웃을
- * 명시적으로 건다({@code ai-service.timeout}, 기본 90초 — ai-service README의 "/rag/answer 생성 20~60초 →
- * Spring 타임아웃 90초" 요구치와 맞춘다).
+ * 멈추면 이 호출을 문 스레드가 영원히 붙잡힌다. 계산 경로와 같은 {@code SimpleClientHttpRequestFactory}로
+ * 연결·읽기 타임아웃을 명시적으로 건다({@code ai-service.timeout}, 기본 90초 — ai-service README의
+ * "/rag/answer 생성 20~60초 → Spring 타임아웃 90초" 요구치와 맞춘다).
  */
 @Configuration
 public class AiServiceClientConfig {
 
 	@Bean
 	public RestClient aiServiceRestClient(AiServiceProperties properties) {
-		HttpClient httpClient = HttpClient.newBuilder()
-				.connectTimeout(properties.timeout())
-				.build();
-		JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
+		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+		requestFactory.setConnectTimeout(properties.timeout());
 		requestFactory.setReadTimeout(properties.timeout());
 
 		return RestClient.builder()
