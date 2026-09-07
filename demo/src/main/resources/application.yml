@@ -10,6 +10,9 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+# ai-service(FastAPI, 성종현) 내부 HTTP 계약(KAN-17). 9/7 배포는 ai-service README 「9/5 통합 체크리스트」 참고
 ai-service:
   base-url: ${AI_SERVICE_BASE_URL:http://localhost:8000}
   calculate-timeout: 10s
+  timeout: 90s
