@@ -2,6 +2,7 @@ package com.projectx.backend.aiservice.infrastructure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -55,9 +56,13 @@ class AiServiceClientTest {
 	@Test
 	void explainReturnsBodyAsIsOnOkStatus() {
 		server.expect(requestTo("http://ai-service.test/rag/answer"))
+				.andExpect(content().json("{\"meta\":{\"data_hash\":\"sha256:test\"},\"focus\":\"Q\"}"))
 				.andRespond(withSuccess("{\"status\":\"OK\"}", MediaType.APPLICATION_JSON));
 
-		JsonNode result = client.explain(objectMapper.createObjectNode());
+		var payload = objectMapper.createObjectNode();
+		payload.putObject("meta").put("data_hash", "sha256:test");
+		payload.put("focus", "Q");
+		JsonNode result = client.explain(payload);
 
 		assertThat(result.get("status").asString()).isEqualTo("OK");
 	}

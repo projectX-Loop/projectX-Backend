@@ -73,7 +73,7 @@ public class AiServiceClient {
 			return restClient.post()
 					.uri(uri)
 					.contentType(MediaType.APPLICATION_JSON)
-					.body(payload)
+					.body(payload.toString())
 					.retrieve()
 					.body(JsonNode.class);
 		}
